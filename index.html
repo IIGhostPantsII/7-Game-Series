@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Series">
+<title>Series</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mute:#76746c;--line:#e4e1d8;--win:#1f9d55;--loss:#d6453d;--acc:#2b4acb;--winbg:#dff3e6;--lossbg:#fbe3e1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#141413;--card:#1f1f1d;--ink:#f1efe8;--mute:#9a978c;--line:#33322e;--win:#3ec97a;--loss:#f06a62;--acc:#7e95ff;--winbg:#173826;--lossbg:#3f1c1a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#141413;--card:#1f1f1d;--ink:#f1efe8;--mute:#9a978c;--line:#33322e;--win:#3ec97a;--loss:#f06a62;--acc:#7e95ff;--winbg:#173826;--lossbg:#3f1c1a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:520px;margin:0 auto;padding:14px 14px 90px}
+h1{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:6px 0 10px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.score{display:flex;align-items:baseline;justify-content:space-between}
+.big{font-size:44px;font-weight:700;letter-spacing:-.02em}
+.tag{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--line)}
+.tag.w{background:var(--winbg);color:var(--win)}.tag.l{background:var(--lossbg);color:var(--loss)}
+.pips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.pip{aspect-ratio:1;border-radius:10px;border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--mute);cursor:pointer}
+.pip b{font-size:16px;color:var(--ink)}
+.pip.W{background:var(--winbg);border-color:var(--win)}.pip.W b{color:var(--win)}
+.pip.L{background:var(--lossbg);border-color:var(--loss)}.pip.L b{color:var(--loss)}
+.pip.sel{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:flex;gap:8px}
+input[type=text],textarea{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+button{font:inherit;border:0;border-radius:12px;padding:11px 14px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer}
+button.ghost{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+button.w{background:var(--win)}button.l{background:var(--loss)}
+.task{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task input{width:22px;height:22px;accent-color:var(--acc)}
+.task span{flex:1}.task.done span{text-decoration:line-through;color:var(--mute)}
+.x{background:none;color:var(--mute);padding:4px 8px;font-size:20px}
+.call{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.call button{padding:14px;font-size:17px}
+.call button.off{opacity:.35}
+.cal{display:grid;grid-template-columns:repeat(7,1fr) 38px;gap:4px;text-align:center}
+.cal .h{font-size:11px;color:var(--mute)}
+.cd{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--mute);cursor:pointer;border:1.5px solid transparent}
+.cd.W{background:var(--winbg);color:var(--win);font-weight:700}.cd.L{background:var(--lossbg);color:var(--loss);font-weight:700}
+.cd.today{border-color:var(--acc)}.cd.sel{outline:2px solid var(--acc)}
+.sr{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border-radius:9px}
+.sr.W{background:var(--win);color:#fff}.sr.L{background:var(--loss);color:#fff}.sr.P{color:var(--mute)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.nav button{padding:6px 12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st{background:var(--bg);border-radius:12px;padding:10px}
+.st small{display:block;color:var(--mute);font-size:12px}.st b{font-size:22px}
+.hist{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.hist:last-child{border:0}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));gap:6px}
+.tabs button{flex:1;background:none;color:var(--mute);padding:10px 4px}
+.tabs button.on{color:var(--acc);background:var(--bg)}
+.mute{color:var(--mute);font-size:13px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+ <section id="v-today"></section>
+ <section id="v-daily" class="hide"></section>
+ <section id="v-cal" class="hide"></section>
+ <section id="v-stats" class="hide"></section>
+</main>
+<nav class="tabs">
+ <button data-v="today" class="on">Today</button>
+ <button data-v="daily">Daily</button>
+ <button data-v="cal">Calendar</button>
+ <button data-v="stats">Stats</button>
+</nav>
+<script>
+const KEY="series-tracker-v1";
+let data={days:{}};
+try{const r=localStorage.getItem(KEY);if(r)data=JSON.parse(r)||{days:{}};if(!data.days)data.days={}}catch(e){}
+if(!Array.isArray(data.daily))data.daily=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=k=>{const[a,b,c]=k.split("-").map(Number);return new Date(a,b-1,c)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const weekStart=d=>addDays(d,-d.getDay());
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const day=k=>data.days[k]||(data.days[k]={tasks:[],result:null});
+const peek=k=>data.days[k]||{tasks:[],result:null};
+const dailyFor=k=>data.daily.filter(t=>t.from<=k&&(!t.until||k<=t.until));
+const dd=k=>{const d=day(k);return d.dd||(d.dd={})};
+let today=new Date(),sel=key(today),calMonth=new Date(today.getFullYear(),today.getMonth(),1),view="today";
+
+function series(ws){ // ws = Date of Sunday
+  let w=0,l=0,any=false;
+  for(let i=0;i<7;i++){const r=peek(key(addDays(ws,i))).result;if(r==="W"){w++;any=true}else if(r==="L"){l++;any=true}}
+  const over=addDays(ws,6)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  let st="P";
+  if(w>=4)st="W";else if(l>=4)st="L";else if(over&&any)st="L";
+  return{w,l,st,any};
+}
+
+function renderToday(){
+  const ws=weekStart(parse(sel)),s=series(ws),d=peek(sel),dt=parse(sel);
+  const label=s.st==="W"?"Series won":s.st==="L"?"Series lost":"In progress";
+  let pips="";
+  for(let i=0;i<7;i++){const k=key(addDays(ws,i)),r=peek(k).result;
+    pips+=`<div class="pip ${r||""} ${k===sel?"sel":""}" data-k="${k}">${DOW[i]}<b>${r||"·"}</b></div>`}
+  const dl=dailyFor(sel),ddn=d.dd||{};
+  const dhtml=dl.map(t=>`<div class="task ${ddn[t.id]?"done":""}"><input type="checkbox" data-dd="${t.id}" ${ddn[t.id]?"checked":""}><span>${esc(t.t)}</span><small class="mute">daily</small></div>`).join("");
+  const tasks=d.tasks.map((t,i)=>`<div class="task ${t.done?"done":""}"><input type="checkbox" data-i="${i}" ${t.done?"checked":""}><span>${esc(t.t)}</span><button class="x" data-del="${i}">×</button></div>`).join("");
+  const nd=d.tasks.filter(t=>t.done).length+dl.filter(t=>ddn[t.id]).length,tot=d.tasks.length+dl.length;
+  $("#v-today").innerHTML=`
+  <h1>Week of ${MONTHS[ws.getMonth()].slice(0,3)} ${ws.getDate()} · Best of 7</h1>
+  <div class="card"><div class="score"><div class="big">${s.w}–${s.l}</div><span class="tag ${s.st==="P"?"":s.st.toLowerCase()}">${label}</span></div>
+  <div class="mute">First to 4 wins takes the series</div><div class="pips">${pips}</div></div>
+  <div class="card"><h1 style="margin-top:0">${DOW[dt.getDay()]}, ${MONTHS[dt.getMonth()]} ${dt.getDate()}${key(today)===sel?" · Today":""}</h1>
+  <div class="row"><input type="text" id="nt" placeholder="Add a task…" enterkeyhint="done"><button id="add">Add</button></div>
+  <div style="margin-top:6px">${dhtml}${tasks}${tot?"":'<div class="mute">No tasks yet. Plan your day.</div>'}</div>
+  ${tot?`<div class="mute" style="margin-top:6px">${nd}/${tot} done</div>`:""}
+  <div class="call"><button class="w ${d.result==="L"?"off":""}" id="bw">${d.result==="W"?"✓ Won the day":"Win"}</button><button class="l ${d.result==="W"?"off":""}" id="bl">${d.result==="L"?"✓ Lost the day":"Loss"}</button></div>
+  ${d.result?`<button class="ghost" id="clr" style="width:100%;margin-top:8px">Clear result</button>`:""}</div>`;
+  document.querySelectorAll(".pip").forEach(e=>e.onclick=()=>{sel=e.dataset.k;renderToday()});
+  const add=()=>{const v=$("#nt").value.trim();if(!v)return;day(sel).tasks.push({t:v,done:false});save();renderToday();$("#nt").focus()};
+  $("#add").onclick=add;$("#nt").onkeydown=e=>{if(e.key==="Enter")add()};
+  document.querySelectorAll(".task input[data-i]").forEach(e=>e.onchange=()=>{day(sel).tasks[+e.dataset.i].done=e.checked;save();renderToday()});
+  document.querySelectorAll("[data-dd]").forEach(e=>e.onchange=()=>{dd(sel)[e.dataset.dd]=e.checked;save();renderToday()});
+  document.querySelectorAll("[data-del]").forEach(e=>e.onclick=()=>{day(sel).tasks.splice(+e.dataset.del,1);save();renderToday()});
+  $("#bw").onclick=()=>{day(sel).result="W";save();renderToday()};
+  $("#bl").onclick=()=>{day(sel).result="L";save();renderToday()};
+  if($("#clr"))$("#clr").onclick=()=>{day(sel).result=null;save();renderToday()};
+}
+
+function renderDaily(){
+  let l="";
+  data.daily.forEach((t,i)=>{if(!t.until)l+=`<div class="task"><span>${esc(t.t)}</span><button class="x" data-rm="${i}">×</button></div>`});
+  $("#v-daily").innerHTML=`<h1>Every-day tasks</h1><div class="card"><div class="row"><input type="text" id="dn" placeholder="Add a daily task…" enterkeyhint="done"><button id="da">Add</button></div><div style="margin-top:6px">${l||'<div class="mute">No daily tasks yet.</div>'}</div><div class="mute" style="margin-top:8px">These appear on every day starting today. Removing one stops it showing from today on and keeps your past days as they were.</div></div>`;
+  const add=()=>{const v=$("#dn").value.trim();if(!v)return;data.daily.push({id:"d"+Date.now(),t:v,from:key(today)});save();renderDaily();$("#dn").focus()};
+  $("#da").onclick=add;$("#dn").onkeydown=e=>{if(e.key==="Enter")add()};
+  document.querySelectorAll("[data-rm]").forEach(e=>e.onclick=()=>{data.daily[+e.dataset.rm].until=key(addDays(today,-1));save();renderDaily()});
+}
+
+function renderCal(){
+  const y=calMonth.getFullYear(),m=calMonth.getMonth();
+  let h=`<div class="card"><div class="nav"><button class="ghost" id="pm">‹</button><b>${MONTHS[m]} ${y}</b><button class="ghost" id="nm">›</button></div><div class="cal">`;
+  DOW.forEach(x=>h+=`<div class="h">${x[0]}</div>`);h+=`<div class="h">Ser</div>`;
+  let ws=weekStart(new Date(y,m,1));
+  while(ws.getMonth()<=m&&ws.getFullYear()<=y||ws<new Date(y,m+1,1)){
+    for(let i=0;i<7;i++){const d=addDays(ws,i),k=key(d),r=peek(k).result,other=d.getMonth()!==m;
+      h+=`<div class="cd ${r||""} ${k===key(today)?"today":""}" style="${other?"opacity:.35":""}" data-k="${k}">${d.getDate()}</div>`}
+    const s=series(ws);h+=`<div class="sr ${s.st}">${s.any||s.st!=="P"?s.st==="P"?s.w+"-"+s.l:s.st:"–"}</div>`;
+    ws=addDays(ws,7);if(ws>=new Date(y,m+1,1))break;
+  }
+  h+=`</div><div class="mute" style="margin-top:10px">Right column: W/L = series result, otherwise the running score. Tap a day to open it.</div></div>`;
+  $("#v-cal").innerHTML=h;
+  $("#pm").onclick=()=>{calMonth=new Date(y,m-1,1);renderCal()};
+  $("#nm").onclick=()=>{calMonth=new Date(y,m+1,1);renderCal()};
+  document.querySelectorAll(".cd").forEach(e=>e.onclick=()=>{sel=e.dataset.k;setView("today")});
+}
+
+function allSeries(){
+  const ks=Object.keys(data.days).filter(k=>data.days[k].result).sort();
+  if(!ks.length)return[];
+  const seen={},out=[];
+  ks.forEach(k=>{const ws=weekStart(parse(k)),wk=key(ws);if(!seen[wk]){seen[wk]=1;out.push({ws,...series(ws)})}});
+  return out.reverse();
+}
+function renderStats(){
+  const ks=Object.keys(data.days).filter(k=>data.days[k].result).sort();
+  const W=ks.filter(k=>data.days[k].result==="W").length,L=ks.length-W;
+  let cur=0,best=0,run=0;
+  ks.forEach(k=>{if(data.days[k].result==="W"){run++;best=Math.max(best,run)}else run=0});
+  for(let i=ks.length-1;i>=0&&data.days[ks[i]].result==="W";i--)cur++;
+  const ser=allSeries(),done=ser.filter(s=>s.st!=="P"),sw=done.filter(s=>s.st==="W").length;
+  const tk0=Object.values(data.days).flatMap(d=>d.tasks);
+  let dt2=0,dd2=0;ks.forEach(k=>{const l=dailyFor(k);dt2+=l.length;dd2+=l.filter(t=>(data.days[k].dd||{})[t.id]).length});
+  const td=tk0.filter(t=>t.done).length+dd2,tk={length:tk0.length+dt2};
+  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
+  $("#v-stats").innerHTML=`
+  <h1>Your numbers</h1>
+  <div class="card"><div class="stats">
+   <div class="st"><small>Day record</small><b>${W}–${L}</b></div>
+   <div class="st"><small>Day win rate</small><b>${pct(W,ks.length)}</b></div>
+   <div class="st"><small>Series record</small><b>${sw}–${done.length-sw}</b></div>
+   <div class="st"><small>Series win rate</small><b>${pct(sw,done.length)}</b></div>
+   <div class="st"><small>Current win streak</small><b>${cur}</b></div>
+   <div class="st"><small>Longest win streak</small><b>${best}</b></div>
+   <div class="st"><small>Tasks done</small><b>${td}/${tk.length}</b></div>
+   <div class="st"><small>Task completion</small><b>${pct(td,tk.length)}</b></div></div></div>
+  <div class="card"><h1 style="margin-top:0">Series history</h1>${ser.map(s=>`<div class="hist"><span>${MONTHS[s.ws.getMonth()].slice(0,3)} ${s.ws.getDate()}</span><span>${s.w}–${s.l}</span><b style="color:var(--${s.st==="W"?"win":s.st==="L"?"loss":"mute"})">${s.st==="W"?"Won":s.st==="L"?"Lost":"Live"}</b></div>`).join("")||`<div class="mute">Nothing yet. Call your first day.</div>`}</div>
+  <div class="card"><h1 style="margin-top:0">Export / backup</h1>
+   <div class="row"><button id="ej">Save backup (JSON)</button><button class="ghost" id="ec">Save CSV</button></div>
+   <div class="mute" id="msg" style="margin-top:8px"></div>
+   <details style="margin-top:10px"><summary class="mute">Restore from backup</summary>
+    <textarea id="imp" rows="4" placeholder="Paste backup JSON here" style="margin-top:8px"></textarea>
+    <button class="ghost" id="ri" style="margin-top:8px">Restore</button></details></div>`;
+  const msg=t=>$("#msg").textContent=t;
+  const out=async(name,txt)=>{
+    let dl=null;try{dl=await claude.use("downloads")}catch(e){}
+    if(!dl){msg("Saving files isn’t available here. Use the text below instead.");$("#imp").value=txt;$("details").open=true;return}
+    try{await dl.save({filename:name,data:txt});msg("Saved.")}catch(e){msg(e&&e.code==="declined"?"Cancelled.":"Couldn’t save the file.")}};
+  $("#ej").onclick=()=>out("series-backup-"+key(today)+".json",JSON.stringify(data,null,1));
+  $("#ec").onclick=()=>{
+    const rows=["date,weekday,result,tasks_total,tasks_done,tasks"];
+    Object.keys(data.days).sort().forEach(k=>{const d=data.days[k];
+      rows.push([k,DOW[parse(k).getDay()],d.result||"",d.tasks.length,d.tasks.filter(t=>t.done).length,'"'+d.tasks.map(t=>(t.done?"[x] ":"[ ] ")+t.t).join(" | ").replace(/"/g,'""')+'"'].join(","))});
+    out("series-data-"+key(today)+".csv",rows.join("\n"))};
+  $("#ri").onclick=()=>{try{const o=JSON.parse($("#imp").value);if(!o||typeof o.days!=="object")throw 0;data=o;if(!Array.isArray(data.daily))data.daily=[];save();msg("Restored.");renderStats()}catch(e){msg("That doesn’t look like a valid backup.")}};
+}
+
+function setView(v){
+  view=v;
+  ["today","daily","cal","stats"].forEach(n=>$("#v-"+n).classList.toggle("hide",n!==v));
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  if(v==="today")renderToday();else if(v==="daily")renderDaily();else if(v==="cal"){calMonth=new Date(parse(sel).getFullYear(),parse(sel).getMonth(),1);renderCal()}else renderStats();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){const n=new Date();if(key(n)!==key(today)){today=n;sel=key(n)}setView(view)}});
+setView("today");
+</script>
+</body>
+</html>
